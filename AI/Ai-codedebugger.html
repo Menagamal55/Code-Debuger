@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSee Smart Debug Lab - Interactive UI</title>
+    <style>
+
+       * {
+            box-sizing: border-box;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background: radial-gradient(circle at center, #1e252b 0%, #0f1113 100%);
+            color: #d1d5db;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px 20px 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.5px;
+        }
+
+        #searchCanvas {
+            filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.4));
+            width: 40px;
+            height: 40px;
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        .logo span {
+            margin-left: 8px;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .select-field {
+            background: #232931;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .select-field option {
+            background: #1e252b;
+            color: white;
+        }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: #7c3aed;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            color: white;
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-purple {
+            background: linear-gradient(90deg, #6d28d9, #db2777);
+        }
+
+        .btn-red {
+            background: #991b1b;
+        }
+
+        .btn:hover,
+        .mode-card:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        .btn:active,
+        .mode-card:active {
+            transform: scale(0.92);
+            filter: brightness(0.8);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 260px 1fr 340px;
+            gap: 20px;
+            flex: 1;
+            height: 85%;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 20px;
+            backdrop-filter: blur(15px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h3 {
+            color: #6b7280;
+            font-size: 0.85rem;
+            margin: 0 0 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+         .mode-card {
+            position: relative;
+            background: #1e252b;
+            color: white;
+            padding: 15px;
+            margin-bottom: 12px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 12px;
+            font-weight: 500;
+
+            border: 1.5px solid transparent;
+            background-image: linear-gradient(#1e252b, #1e252b),
+                linear-gradient(90deg, #6366f1, #a855f7, #db2777);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.2);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.2);
+        }
+
+        .mode-card:active {
+            transform: scale(0.96);
+        }
+
+        .mode-card.active {
+            background: linear-gradient(90deg, #6d28d9, #db2777);
+            border: none;
+            box-shadow: 0 8px 20px rgba(109, 40, 217, 0.3);
+        }
+
+        .difficulty-selector {
+            display: flex;
+            background: #161b22;
+            border-radius: 30px;
+            padding: 4px;
+            margin-bottom: 15px;
+            justify-content: space-between;
+        }
+
+        .difficulty-selector input[type="radio"] {
+            display: none;
+        }
+
+        .diff-opt {
+            flex: 1;
+            text-align: center;
+            padding: 8px 0;
+            font-size: 0.75rem;
+            color: #9ca3af;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #easy:checked+.diff-opt,
+        #medium:checked+.diff-opt,
+        #hard:checked+.diff-opt {
+            background: #374151;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        #current-font-val {
+            background: #374151 !important;
+            color: white !important;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .diff-opt.active {
+            background: #374151;
+            color: white;
+        }
+
+        .code-editor {
+            background: #000000;
+            border-radius: 15px;
+            padding: 20px;
+            flex: 1;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            outline: none;
+            white-space: pre;
+            display: block;
+            min-height: 300px;
+            color: #d1d5db;
+        }
+
+        .line {
+            display: flex;
+            gap: 20px;
+            position: relative;
+        }
+
+        .num {
+            color: #4b5563;
+            min-width: 25px;
+            text-align: right;
+        }
+
+        .line-error {
+            background: rgba(239, 68, 68, 0.15);
+            margin: 0 -20px;
+            padding: 0 20px;
+            border-left: 4px solid #ef4444;
+        }
+
+        .error-dot {
+            position: absolute;
+            left: -5px;
+            top: 4px;
+            background: #ef4444;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .c-kw {
+            color: #ff7b72;
+        }
+
+        .c-fn {
+            color: #d2a8ff;
+        }
+
+        .c-st {
+            color: #a5d6ff;
+        }
+
+        .ai-panel {
+            background-color: rgba(13, 14, 18, 0.7);
+            color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            width: 300px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .ai-panel h3 {
+            margin-top: 0;
+            font-family: sans-serif;
+            font-size: 1.1em;
+            font-weight: normal;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 25px;
+        }
+
+
+        .panel-outer-wrapper {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .panel-tab-header {
+            height: 35px;
+            background: linear-gradient(to right, #061a12, #1d0909);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 2;
+            position: relative;
+        }
+
+        .colored-border-container {
+            position: relative;
+            padding: 1.5px;
+            overflow: hidden;
+            background-color: transparent;
+            border-radius: 0 0 11px 11px;
+        }
+        .colored-border-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, #8a2be2, #d1208a);
+            z-index: 0;
+        }
+
+       
+        .inner-content {
+            background-color: #0d0e12;
+            height: 498px;
+            border-radius: 0 0 10px 10px;
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            <canvas id="searchCanvas" width="200" height="200"></canvas>
+            CodeSee
+            <span style="font-weight: 300; color: #9ca3af; font-size: 1.1rem;">
+                AI Code Debugging Lab
+            </span>
+        </div>
+        <div class="nav-actions">
+            <span style="color: #6b7280; font-size: 0.8rem;">Language :</span>
+            <select class="select-field" id="langSelect">
+                <option value=".py">Python</option>
+                <option value=".js">JavaScript</option>
+                <option value=".dart">Dart</option>
+                <option value=".cpp">C++</option>
+                <option value=".java">Java</option>
+                <option value=".cs">C#</option>
+            </select>
+            <span style="color: #6b7280; font-size: 0.8rem;">File :</span>
+            <input type="text" class="input-field" id="fileNameInput" value="main.py">
+            <button class="btn btn-purple" id="btn-save">Save</button>
+            <button class="btn btn-red" id="btn-delete">Delete</button>
+        </div>
+    </header>
+
+    <main class="main-grid">
+        <aside>
+            <div class="panel" style="margin-bottom: 20px;">
+                <h3>Mode Selection</h3>
+                <div class="mode-card" id="btn-user-mode">User Solves</div>
+                <div class="mode-card active" id="btn-ai-mode">AI Solves</div>
+            </div>
+            <div class="panel">
+                <h3>Difficulty & Actions</h3>
+                <div class="difficulty-selector">
+                    <input type="radio" name="diff" id="easy">
+                    <label for="easy" class="diff-opt">Easy</label>
+
+                    <input type="radio" name="diff" id="medium" checked>
+                    <label for="medium" class="diff-opt">Medium</label>
+
+                    <input type="radio" name="diff" id="hard">
+                    <label for="hard" class="diff-opt">Hard</label>
+                </div>
+                <div class="mode-card active" id="btn-example">Example</div>
+                <div class="mode-card active" id="btn-restart">Restart</div>
+            </div>
+
+            <div class="panel" style="margin-top: 20px;">
+                <h3>Font Size Control</h3>
+                <div class="difficulty-selector">
+                    <input type="radio" name="font" id="font-down">
+                    <label for="font-down" class="diff-opt" id="btn-font-down">A -</label>
+
+                    <span class="diff-opt active" id="current-font-val" style="cursor: default;">20</span>
+
+                    <input type="radio" name="font" id="font-up">
+                    <label for="font-up" class="diff-opt" id="btn-font-up">A +</label>
+                </div>
+            </div>
+        </aside>
+
+        <section class="panel">
+            <h3>Cods Editor Area</h3>
+            <div id="editor-container" style="width: 100%; height: 100%; min-height: 400px;"></div>
+        </section>
+
+        <aside class="panel ai-panel">
+            <h3>Output / AI Panel</h3>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.72rem;">
+                <span id="challenge-label" style="color:#6b7280;"></span>
+            </div>
+            <div class="panel-outer-wrapper">
+                <div class="panel-tab-header" id="output-header">
+                    <span id="run-status" style="color:#9ca3af; font-size:14px; padding:10px;">
+                        Waiting...
+                    </span>
+                </div>
+
+                <div class="colored-border-container">
+                    <div class="inner-content" id="terminal-output"
+                        style="padding:15px; font-family: monospace; white-space: pre-wrap; overflow-y:auto;">
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+    <script>
+        const canvas = document.getElementById('searchCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const colorStart = '#6366f1'; // Indigo
+        const colorEnd = '#a855f7';   // Purple
+
+        function drawSearchIcon() {
+            const cx = canvas.width / 2 - 15;
+            const cy = canvas.height / 2 - 15;
+            const radius = 60;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = colorEnd;
+            ctx.lineCap = 'round';
+
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, colorStart);
+            gradient.addColorStop(1, colorEnd);
+            ctx.strokeStyle = gradient;
+
+            ctx.lineWidth = 15;
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius - 15, Math.PI * 1.2, Math.PI * 1.5);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'; 
+            ctx.stroke();
+
+            ctx.strokeStyle = gradient; 
+            const angle = Math.PI / 4;
+            const startDist = radius + 5;
+            const handleLength = 60;
+
+            ctx.lineWidth = 25;
+            const startX = cx + Math.cos(angle) * startDist;
+            const startY = cy + Math.sin(angle) * startDist;
+            const endX = cx + Math.cos(angle) * (startDist + handleLength);
+            const endY = cy + Math.sin(angle) * (startDist + handleLength);
+
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+        }
+
+        drawSearchIcon();
+
+        const langConfig = {
+            ".py": { name: "Python", monaco: "python", comment: "# Start coding in Python..." },
+            ".js": { name: "JavaScript", monaco: "javascript", comment: "// Start coding in JavaScript..." },
+            ".dart": { name: "Dart", monaco: "dart", comment: "// Start coding in Dart..." },
+            ".cpp": { name: "C++", monaco: "cpp", comment: "// Start coding in C++..." },
+            ".java": { name: "Java", monaco: "java", comment: "// Start coding in Java..." },
+            ".cs": { name: "C#", monaco: "csharp", comment: "// Start coding in C#..." },
+        };
+
+        const LANGUAGE_VERSIONS = {
+            "python": "3.10.0",
+            "javascript": "18.15.0",
+            "dart": "2.19.6",
+            "cpp": "10.2.0",
+            "java": "15.0.2",
+            "csharp": "6.12.0",
+            "rust": "1.68.2",
+            "swift": "5.3.3",
+            "php": "8.2.3",
+            "go": "1.16.2",
+            "sql": "3.36.0"
+        };
+
+        const langMap = {
+            ".py": "python",
+            ".js": "javascript",
+            ".dart": "dart",
+            ".cpp": "cpp",
+            ".java": "java",
+            ".cs": "csharp",
+            ".rs": "rust",
+            ".swift": "swift",
+            ".php": "php",
+            ".go": "go",
+            ".sql": "sqlite3"
+        };
+
+        const smartQuestionBank = {
+            ".py": {
+                easy: [
+                    { q: "Missing colon", code: "if x == 5\n print(x)", fixed: "if x == 5:\n print('x')" },
+                    { q: "Indent error", code: "def f():\nprint('hi')", fixed: "def f():\n    print('hi')" },
+                    { q: "Missing bracket", code: "print('hi'", fixed: "print('hi')" },
+                    { q: "Wrong keyword", code: "prit('hi')", fixed: "print('hi')" },
+                    { q: "Missing quotes", code: "print(hi)", fixed: "print('hi')" },
+                    { q: "Wrong elif", code: "else if x > 0:", fixed: "elif x > 0:" },
+                    { q: "Loop syntax", code: "for i in 5:", fixed: "for i in range(5):" }
+                ],
+
+                medium: [
+                    { q: "Assignment error", code: "if x = 5:", fixed: "if x == 5:" },
+                    { q: "Logic return", code: "def add(a,b): return a-b", fixed: "return a+b" },
+                    { q: "Wrong condition", code: "if x < 5:\n print('big')", fixed: "if x > 5:" },
+                    { q: "Index error", code: "a=[1,2]; print(a[2])", fixed: "print(a[1])" },
+                    { q: "Function arg", code: "def f(a): pass\nf()", fixed: "f(1)" },
+                    { q: "Loop logic", code: "for i in range(5): print(5)", fixed: "print(i)" },
+                    { q: "Variable use", code: "print(x)", fixed: "x=0\nprint(x)" }
+                ],
+
+                hard: [
+                    { q: "Division by zero", code: "print(10/0)", fixed: "print('error')" },
+                    { q: "Infinite recursion", code: "def f(): f()", fixed: "add base case" },
+                    { q: "Multiple errors", code: "if x=5\nprint(x)", fixed: "if x==5:\n print(x)" },
+                    { q: "None error", code: "x=None\nprint(x+1)", fixed: "check None" },
+                    { q: "Logic fail", code: "while True: pass", fixed: "add break" },
+                    { q: "Type error", code: "x='5'+5", fixed: "int('5')+5" },
+                    { q: "Index runtime", code: "a=[]; print(a[0])", fixed: "check length" }
+                ]
+            },
+            ".js": {
+                easy: [
+                    { q: "Missing bracket", code: "console.log('Hello'", fixed: "console.log('Hello')" },
+                    { q: "Missing semicolon", code: "let x = 5\nconsole.log(x)", fixed: "let x = 5;\nconsole.log(x);" },
+                    { q: "Typo in keyword", code: "functon test() {}", fixed: "function test() {}" },
+                    { q: "Missing curly braces", code: "if(x > 5) console.log(x)", fixed: "if(x > 5){ console.log(x) }" },
+                    { q: "Missing quotes", code: "console.log(Hello)", fixed: "console.log('Hello')" },
+                    { q: "Invalid variable name", code: "let 1x = 5;", fixed: "let x1 = 5;" },
+                    { q: "Array syntax error", code: "let arr = [1 2 3];", fixed: "let arr = [1, 2, 3];" }
+                ],
+                medium: [
+                    { q: "Assignment instead of comparison", code: "if(x = 5){ console.log('Yes') }", fixed: "if(x === 5){ console.log('Yes') }" },
+                    { q: "Loop condition error", code: "for(let i=0;i<=5;i++){console.log(i)}", fixed: "for(let i=0;i<5;i++){console.log(i)}" },
+                    { q: "Missing function argument", code: "function add(a,b){ return a+b }\nconsole.log(add(5))", fixed: "console.log(add(5,2))" },
+                    { q: "Wrong return logic", code: "function add(a,b){ return a-b }", fixed: "function add(a,b){ return a+b }" },
+                    { q: "Undefined variable", code: "console.log(x)", fixed: "let x = 0;\nconsole.log(x)" },
+                    { q: "Wrong array index", code: "let arr=[1,2]; console.log(arr[2])", fixed: "console.log(arr[1])" },
+                    { q: "Wrong condition logic", code: "if(x < 5){ console.log('Big') }", fixed: "if(x > 5){ console.log('Big') }" }
+                ],
+                hard: [
+                    { q: "Division by zero", code: "console.log(10/0)", fixed: "console.log('Cannot divide by zero')" },
+                    { q: "Undefined + Syntax error", code: "console.log(y", fixed: "let y = 0;\nconsole.log(y)" },
+                    { q: "Infinite loop", code: "while(true){ console.log('hi') }", fixed: "let i=0; while(i<5){ console.log('hi'); i++; }" },
+                    { q: "Null error", code: "let x=null; console.log(x.length)", fixed: "if(x){ console.log(x.length) }" },
+                    { q: "Multiple errors", code: "functon add(a,b { return a+b", fixed: "function add(a,b){ return a+b }" },
+                    { q: "Type error", code: "let x='5'+5; console.log(x)", fixed: "let x = Number('5') + 5;\nconsole.log(x)" },
+                    { q: "Async mistake", code: "fetch().then(data => console(data))", fixed: "fetch().then(data => console.log(data))" }
+                ]
+            },
+            ".dart": {
+                "easy": [
+                    { q: "Dart: Missing Semicolon", code: "void main() {\n  print('Hello')\n}", fixed: "void main() {\n  print('Hello');\n}" },
+                    { q: "Dart: Main Function Typo", code: "void mian() {\n  print('Dart is fun');\n}", fixed: "void main() {\n  print('Dart is fun');\n}" },
+                    { q: "Dart: String Quotes", code: "void main() {\n  var s = Hello;\n}", fixed: "void main() {\n  var s = 'Hello';\n}" },
+                    { q: "Dart: Variable Redefinition", code: "var x = 5;\nvar x = 10;", fixed: "var x = 5;\nx = 10;" },
+                    { q: "Dart: Missing Parentheses", code: "void main() {\n  if true {\n    print('ok');\n  }\n}", fixed: "void main() {\n  if (true) {\n    print('ok');\n  }\n}" },
+                    { q: "Dart: Print Function", code: "void main() {\n  Print('Test');\n}", fixed: "void main() {\n  print('Test');\n}" },
+                    { q: "Dart: Empty Body", code: "void main()", fixed: "void main() {}" }
+                ],
+                "medium": [
+                    { q: "Dart: Type Mismatch", code: "int age = '25';", fixed: "int age = 25;" },
+                    { q: "Dart: Final vs Const", code: "const double pi = 3.14;\npi = 3.15;", fixed: "double pi = 3.14;\npi = 3.15;" },
+                    { q: "Dart: List Type", code: "List<int> nums = [1, '2', 3];", fixed: "List<int> nums = [1, 2, 3];" },
+                    { q: "Dart: String Interpolation", code: "int x = 5;\nprint('Value is $x+1');", fixed: "int x = 5;\nprint('Value is ${x + 1}');" },
+                    { q: "Dart: Return Type", code: "int getNum() {\n  print(5);\n}", fixed: "int getNum() {\n  return 5;\n}" },
+                    { q: "Dart: Null Safety (Assigning Null)", code: "int x = null;", fixed: "int? x = null;" },
+                    { q: "Dart: Required Parameters", code: "void say({String name}) {}", fixed: "void say({required String name}) {}" }
+                ],
+                "hard": [
+                    { q: "Dart: This Constructor", code: "class Point {\n  int x;\n  Point(x);\n}", fixed: "class Point {\n  int x;\n  Point(this.x);\n}" },
+                    { q: "Dart: Late Initialization", code: "class Test {\n  String name;\n}", fixed: "class Test {\n  late String name;\n}" },
+                    { q: "Dart: Future Return", code: "Future sayHi() {\n  return 'Hi';\n}", fixed: "Future<String> sayHi() async {\n  return 'Hi';\n}" },
+                    { q: "Dart: Abstract Class Instant", code: "abstract class A {}\nvoid main() { var a = A(); }", fixed: "abstract class A {}\nclass B extends A {}\nvoid main() { var a = B(); }" },
+                    { q: "Dart: Super Constructor", code: "class A { A(int x); }\nclass B extends A { B(); }", fixed: "class A { A(int x); }\nclass B extends A { B(int x) : super(x); }" },
+                    { q: "Dart: Map Key Type", code: "Map<String, int> map = {1: 10};", fixed: "Map<String, int> map = {'1': 10};" },
+                    { q: "Dart: Final In Class", code: "class User {\n  final String id;\n  User();\n}", fixed: "class User {\n  final String id;\n  User(this.id);\n}" }
+                ]
+            },
+            ".cpp": {
+                "easy": [
+                    { q: "C++: Missing Semicolon", code: "int x = 5\ncout << x;", fixed: "int x = 5;\ncout << x;" },
+                    { q: "C++: Main Return Type", code: "void main() {\n  return 0;\n}", fixed: "int main() {\n  return 0;\n}" },
+                    { q: "C++: Missing Namespace", code: "int main() {\n  cout << \"Hi\";\n}", fixed: "int main() {\n  std::cout << \"Hi\";\n}" },
+                    { q: "C++: Header Syntax", code: "#include <iostream.h>", fixed: "#include <iostream>" },
+                    { q: "C++: Wrong String Quotes", code: "char c = \"A\";", fixed: "char c = 'A';" },
+                    { q: "C++: Unclosed Brace", code: "int main() {\n  if(true) {\n    return 0;", fixed: "int main() {\n  if(true) {\n    return 0;\n  }\n}" },
+                    { q: "C++: Input Syntax", code: "int x;\ncin >> x", fixed: "int x;\ncin >> x;" }
+                ],
+                "medium": [
+                    { q: "C++: Pointer Syntax", code: "int x = 10;\nint* ptr = x;", fixed: "int x = 10;\nint* ptr = &x;" },
+                    { q: "C++: Const Reassignment", code: "const int x = 5;\nx = 10;", fixed: "int x = 5;\nx = 10;" },
+                    { q: "C++: Reference Initialization", code: "int& ref;", fixed: "int x = 0;\nint& ref = x;" },
+                    { q: "C++: String vs Char Array", code: "string s = 'Hello';", fixed: "string s = \"Hello\";" },
+                    { q: "C++: Loop Condition", code: "for(int i=0, i<5, i++)", fixed: "for(int i=0; i<5; i++)" },
+                    { q: "C++: Function Declaration", code: "void hello()", fixed: "void hello();" },
+                    { q: "C++: Array Index Out of Bounds", code: "int arr[2] = {1,2};\ncout << arr[2];", fixed: "int arr[2] = {1,2};\ncout << arr[1];" }
+                ],
+                "hard": [
+                    { q: "C++: Array Memory Deallocation", code: "int* arr = new int[5];\ndelete arr;", fixed: "int* arr = new int[5];\ndelete[] arr;" },
+                    { q: "C++: Class Access Modifier", code: "class A { int x; };\nvoid main() { A a; a.x = 5; }", fixed: "class A { public: int x; };\nvoid main() { A a; a.x = 5; }" },
+                    { q: "C++: Null Pointer (Modern)", code: "int* ptr = NULL;", fixed: "int* ptr = nullptr;" },
+                    { q: "C++: Destructor Syntax", code: "class A { A() {} };", fixed: "class A { A() {} ~A() {} };" },
+                    { q: "C++: Multiple Inheritance Ambiguity", code: "class A { public: void show(){} };\nclass B { public: void show(){} };\nclass C: public A, public B {};", fixed: "class A { public: void show(){} };\nclass B { public: void show(){} };\nclass C: public A, public B { public: void show(){ A::show(); } };" },
+                    { q: "C++: Memory Leak (Pointer Reassign)", code: "int* p = new int(5);\np = new int(10);", fixed: "int* p = new int(5);\ndelete p;\np = new int(10);" },
+                    { q: "C++: Struct Semicolon", code: "struct User {\n  int id\n}", fixed: "struct User {\n  int id;\n};" }
+                ]
+            },
+            ".java": {
+                "easy": [
+                    { q: "Java: Main Method Signature", code: "void main() {\n  System.out.println(\"Hi\");\n}", fixed: "public static void main(String[] args) {\n  System.out.println(\"Hi\");\n}" },
+                    { q: "Java: Missing Semicolon", code: "int x = 10\nSystem.out.println(x)", fixed: "int x = 10;\nSystem.out.println(x);" },
+                    { q: "Java: Variable Type", code: "x = 5;", fixed: "int x = 5;" },
+                    { q: "Java: String Type Typo", code: "string name = \"Ali\";", fixed: "String name = \"Ali\";" },
+                    { q: "Java: System Print Typo", code: "system.out.print(\"Hello\");", fixed: "System.out.print(\"Hello\");" },
+                    { q: "Java: Class Suffix", code: "public class Main \n  // missing brackets\n", fixed: "public class Main {\n\n}" },
+                    { q: "Java: Final Constant", code: "final int x = 5;\nx = 10;", fixed: "int x = 5;\nx = 10;" }
+                ],
+                "medium": [
+                    { q: "Java: String Equality", code: "if (name == \"Admin\") {}", fixed: "if (name.equals(\"Admin\")) {}" },
+                    { q: "Java: Array Initialization", code: "int[] arr = new int(5);", fixed: "int[] arr = new int[5];" },
+                    { q: "Java: ArrayList Import", code: "ArrayList<Integer> list = new ArrayList<>();", fixed: "import java.util.ArrayList;\nArrayList<Integer> list = new ArrayList<>();" },
+                    { q: "Java: Constructor Name", code: "class User {\n  public void User() {}\n}", fixed: "class User {\n  public User() {}\n}" },
+                    { q: "Java: Scanner Input", code: "Scanner sc = new Scanner(System.in);\nint x = sc.next;", fixed: "Scanner sc = new Scanner(System.in);\nint x = sc.nextInt();" },
+                    { q: "Java: Method Return", code: "public int sum(int a, int b) {\n  System.out.print(a+b);\n}", fixed: "public int sum(int a, int b) {\n  return a + b;\n}" },
+                    { q: "Java: For Loop Syntax", code: "for (int i=0, i<10, i++)", fixed: "for (int i=0; i<10; i++)" }
+                ],
+                "hard": [
+                    { q: "Java: Static vs Instance", code: "public class T {\n  void p() {}\n  public static void main(String[] args) { p(); }\n}", fixed: "public class T {\n  static void p() {}\n  public static void main(String[] args) { p(); }\n}" },
+                    { q: "Java: Exception Handling", code: "int x = 10 / 0;", fixed: "try {\n  int x = 10 / 0;\n} catch (ArithmeticException e) {\n  System.out.println(\"Error\");\n}" },
+                    { q: "Java: Interface Implementation", code: "interface A { void play(); }\nclass B implements A { }", fixed: "interface A { void play(); }\nclass B implements A { public void play() {} }" },
+                    { q: "Java: Inheritance Super", code: "class A { A(int x){} }\nclass B extends A { B(){ super(); } }", fixed: "class A { A(int x){} }\nclass B extends A { B(int x){ super(x); } }" },
+                    { q: "Java: Abstract Class", code: "abstract class A { }\nA obj = new A();", fixed: "abstract class A { }\nclass B extends A { }\nB obj = new B();" },
+                    { q: "Java: Private Access", code: "class A { private int x; }\nclass B { void t() { A a = new A(); a.x = 5; } }", fixed: "class A { public int x; }\nclass B { void t() { A a = new A(); a.x = 5; } }" },
+                    { q: "Java: Generics Mismatch", code: "List<String> l = new ArrayList<Integer>();", fixed: "List<String> l = new ArrayList<String>();" }
+                ]
+            },
+            ".cs": {
+                "easy": [
+                    { q: "C#: Console Output Typo", code: "console.log('hi');", fixed: "Console.WriteLine(\"hi\");" },
+                    { q: "C#: Missing Semicolon", code: "int x = 5\nConsole.Write(x)", fixed: "int x = 5;\nConsole.Write(x);" },
+                    { q: "C#: String Quotes", code: "string name = 'Ali';", fixed: "string name = \"Ali\";" },
+                    { q: "C#: Main Method Case", code: "static void main() {}", fixed: "static void Main() {}" },
+                    { q: "C#: Variable Declaration", code: "number x = 10;", fixed: "int x = 10;" },
+                    { q: "C#: ReadLine Syntax", code: "string s = Console.Readline();", fixed: "string s = Console.ReadLine();" },
+                    { q: "C#: Boolean Value", code: "bool isOpen = 1;", fixed: "bool isOpen = true;" }
+                ],
+                "medium": [
+                    { q: "C#: Auto-Properties", code: "int Age { get }", fixed: "int Age { get; set; }" },
+                    { q: "C#: List Initialization", code: "List<int> list = new List<int>(1, 2);", fixed: "List<int> list = new List<int> { 1, 2 };" },
+                    { q: "C#: Nullable Type", code: "int x = null;", fixed: "int? x = null;" },
+                    { q: "C#: Foreach Syntax", code: "foreach (int i in arr) { i = 10; }", fixed: "for (int i = 0; i < arr.Length; i++) { arr[i] = 10; }" },
+                    { q: "C#: Constructor Assignment", code: "class User { string n; User(string name) { name = n; } }", fixed: "class User { string n; User(string name) { n = name; } }" },
+                    { q: "C#: String Interpolation", code: "Console.WriteLine('Name: {name}');", fixed: "Console.WriteLine($\"Name: {name}\");" },
+                    { q: "C#: Class Inheritance", code: "class B : A, C {}", fixed: "class B : A {} // C# doesn't support multiple class inheritance" }
+                ],
+                "hard": [
+                    { q: "C#: Full Namespace Path", code: "WriteLine();", fixed: "System.Console.WriteLine();" },
+                    { q: "C#: Readonly Field", code: "readonly int x = 5;\nvoid Update() { x = 10; }", fixed: "int x = 5;\nvoid Update() { x = 10; }" },
+                    { q: "C#: Async Task Return", code: "async void GetData() { return \"done\"; }", fixed: "async Task<string> GetData() { return \"done\"; }" },
+                    { q: "C#: Linq Syntax", code: "var res = users.Where(u => u.Id = 1);", fixed: "var res = users.Where(u => u.Id == 1);" },
+                    { q: "C#: Event Handler", code: "public event Action OnClick;\nOnClick();", fixed: "public event Action OnClick;\nOnClick?.Invoke();" },
+                    { q: "C#: Ref Parameter", code: "void Swap(int x) { x = 10; }\nSwap(a);", fixed: "void Swap(ref int x) { x = 10; }\nSwap(ref a);" },
+                    { q: "C#: Dictionary Add", code: "var d = new Dictionary<int, string>();\nd.Add(1, \"A\");\nd.Add(1, \"B\");", fixed: "var d = new Dictionary<int, string>();\nd[1] = \"A\";\nd[1] = \"B\";" }
+                ]
+            },
+
+        };
+
+        // 3. إعداد Monaco Editor
+        require.config({
+            paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.41.0/min/vs' }
+        });
+
+        require(['vs/editor/editor.main'], function () {
+            window.editor = monaco.editor.create(document.getElementById('editor-container'), {
+                value: langConfig[".py"].comment,
+                language: 'python',
+                theme: 'vs-dark',
+                lineNumbers: 'on',
+                automaticLayout: true,
+                fontSize: 20,
+                minimap: { enabled: false },
+                fontFamily: "'Consolas', 'Courier New', monospace"
+            });
+
+
+            const langSelect = document.getElementById('langSelect');
+            const fileNameInput = document.getElementById('fileNameInput');
+
+            if (langSelect && fileNameInput) {
+                langSelect.addEventListener('change', function () {
+                    const ext = this.value;
+                    const config = langConfig[ext] || { name: "Plain Text", monaco: "plaintext", comment: "//..." };
+
+                    let currentName = fileNameInput.value.split('.')[0];
+                    fileNameInput.value = currentName + ext;
+
+                    monaco.editor.setModelLanguage(window.editor.getModel(), config.monaco);
+                    window.editor.setValue(config.comment);
+                });
+            }
+
+            let currentFontSize = 20;
+            const fontValDisplay = document.getElementById('current-font-val');
+
+            document.getElementById('btn-font-up').addEventListener('click', () => {
+                if (currentFontSize < 100) { currentFontSize += 5; updateEditorFont(); }
+            });
+
+            document.getElementById('btn-font-down').addEventListener('click', () => {
+                if (currentFontSize > 10) { currentFontSize -= 5; updateEditorFont(); }
+            });
+
+            function updateEditorFont() {
+                if (window.editor) { window.editor.updateOptions({ fontSize: currentFontSize }); }
+                if (fontValDisplay) { fontValDisplay.innerText = currentFontSize; }
+            }
+
+
+            document.getElementById('btn-example').addEventListener('click', () => {
+                const ext = langSelect.value;
+                let level = 'easy';
+                if (document.getElementById('medium').checked) level = 'medium';
+                if (document.getElementById('hard').checked) level = 'hard';
+
+                const languagePool = smartQuestionBank[ext];
+
+                if (languagePool) {
+                    const questions = languagePool[level] || languagePool["easy"];
+                    const randomQ = questions[Math.floor(Math.random() * questions.length)];
+
+                    window.editor.setValue(randomQ.code);
+                    window.currentChallenge = randomQ;
+
+                    document.getElementById('challenge-label').innerText = `📝 Task: ${randomQ.q}`;
+                    window.hintIndex = 0;
+                    renderOutput(`<span style='color:#a855f7;'>✨ Challenge loaded! Fix the error and click <b>User Solves</b> for hints or <b>AI Solves</b> for full analysis.</span>`);
+                    setStatus('Ready for Debugging', '#a855f7');
+                }
+            });
+
+
+            document.getElementById('btn-restart').addEventListener('click', () => {
+                if (window.currentChallenge) {
+                    window.editor.setValue(window.currentChallenge.code);
+                    window.hintIndex = 0;
+                    renderOutput(`<span style='color:#a855f7;'>🔄 Challenge reset. Try again!</span>`);
+                    setStatus('Challenge Restarted', '#a855f7');
+                } else {
+                    renderOutput(`<span style='color:#6b7280;'>No active challenge. Click "Example" to load one.</span>`);
+                    setStatus('No active challenge', '#6b7280');
+                }
+            });
+
+
+            document.getElementById('btn-save').addEventListener('click', function () {
+                const code = window.editor.getValue();
+                const fileName = document.getElementById('fileNameInput').value || 'code.txt';
+                const blob = new Blob([code], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+
+            document.getElementById('btn-delete').addEventListener('click', function () {
+                window.editor.setValue('');
+                window.currentChallenge = null;
+                window.hintIndex = 0;
+                renderOutput('');
+                setStatus('Editor Cleared', '#9ca3af');
+                document.getElementById('challenge-label').innerText = '';
+            });
+
+            function renderOutput(html) {
+                document.getElementById('terminal-output').innerHTML = html;
+            }
+
+            function setStatus(text, color = '#9ca3af') {
+                const s = document.getElementById('run-status');
+                s.style.color = color;
+                s.innerText = text;
+            }
+
+            window.hintIndex = 0;
+            window.currentMode = 'user'; 
+
+          
+            const extendedCSPRules = {
+                // ─────────────────── PYTHON ───────────────────
+                ".py": [
+                    {
+                        type: "SyntaxError: Missing colon ':'",
+                        check: (l) => {
+                            const t = l.trim();
+
+                            if (!/^(if|elif|else|for|while|def|class|with|try|except|finally)\b/.test(t)) return false;
+
+                            const stripped = t.replace(/(['"]).*?\1/g, '""').replace(/\(.*?\)/g, '()');
+                            return !stripped.trimEnd().endsWith(':');
+                        },
+                        hint: "💡 Hint: Python control statements (if/for/while/def/class...) must end with a colon ':'.",
+                        fix: "Add ':' at the end of this line."
+                    },
+                    {
+                        type: "IndentationError: Missing indentation after ':'",
+                        check: (l, idx, lines) => {
+                            if (idx === 0) return false;
+                            const prev = lines[idx - 1].trim();
+                            const cur  = l;
+
+                            return /:\s*$/.test(prev) && cur.trim().length > 0 && !/^\s/.test(cur);
+                        },
+                        hint: "💡 Hint: The line after ':' must be indented (add 4 spaces or a tab).",
+                        fix: "Add 4 spaces of indentation before this line."
+                    },
+                    {
+                        type: "NameError: Typo in 'print'",
+                        check: (l) => /\b(prit|printt|pirnt|prnt|pring|prrint|pritn)\s*\(/.test(l),
+                        hint: "💡 Hint: The print function is misspelled.",
+                        fix: "Replace with: print(...)"
+                    },
+                    {
+                        type: "SyntaxError: Missing quotes around string",
+                        check: (l) => {
+                            // print(something) حيث something مش رقم ومش بين quotes ومش متغير معقد
+                            const m = l.match(/\bprint\s*\(\s*([^,)]+)\s*\)/);
+                            if (!m) return false;
+                            const arg = m[1].trim();
+                            // لو مش بيبدأ بـ quote أو رقم أو variable مقبول
+                            return /^[a-zA-Z][a-zA-Z0-9_]*$/.test(arg) && !/^(True|False|None)$/.test(arg) && !/^\d/.test(arg);
+                        },
+                        hint: "💡 Hint: String arguments to print() must be wrapped in quotes.",
+                        fix: "Add quotes: print('your_text_here')"
+                    },
+                    {
+                        type: "SyntaxError: Assignment '=' inside condition (use '==')",
+                        check: (l) => /^\s*(if|elif|while)\s+\w[\w.]*\s*=[^=<>!]/.test(l),
+                        hint: "💡 Hint: You used '=' (assignment) inside a condition. Use '==' for comparison.",
+                        fix: "Change '=' to '==' inside the condition."
+                    },
+                    {
+                        type: "SyntaxError: Wrong keyword — use 'elif' not 'else if'",
+                        check: (l) => /^\s*else\s+if\b/.test(l),
+                        hint: "💡 Hint: Python uses 'elif', not 'else if'.",
+                        fix: "Replace 'else if ...:' with 'elif ...:'."
+                    },
+                    {
+                        type: "SyntaxError: Missing closing parenthesis ')'",
+                        check: (l) => {
+                            const op = (l.match(/\(/g)||[]).length;
+                            const cl = (l.match(/\)/g)||[]).length;
+                            return op > cl;
+                        },
+                        hint: "💡 Hint: There is an unclosed '(' on this line.",
+                        fix: "Add the missing ')' to close the parenthesis."
+                    },
+                    {
+                        type: "TypeError: Can't add string and number directly",
+                        check: (l) => /['"][^'"]*['"]\s*\+\s*\d+(?!\s*\*)|\d+\s*\+\s*['"]/.test(l) && !/str\s*\(/.test(l),
+                        hint: "💡 Hint: You can't add a string and a number in Python without conversion.",
+                        fix: "Wrap the number with str(): 'text' + str(number)"
+                    },
+                    {
+                        type: "SyntaxError: 'for' loop must iterate over a sequence",
+                        check: (l) => /^\s*for\s+\w+\s+in\s+\d+\s*:/.test(l),
+                        hint: "💡 Hint: You can't iterate directly over a number. Use range().",
+                        fix: "Change 'for i in 5:' to 'for i in range(5):'"
+                    },
+                    {
+                        type: "RuntimeError: Division by zero",
+                        check: (l) => /\/\s*0(?!\.)/.test(l) && !/['"]\s*\/\s*0/.test(l),
+                        hint: "💡 Hint: Division by zero will crash at runtime.",
+                        fix: "Add a check: if divisor != 0: ... or handle the error with try/except."
+                    },
+                    {
+                        type: "TypeError: 'None' + number will cause TypeError",
+                        check: (l) => /None\s*[+\-\*\/]|[+\-\*\/]\s*None/.test(l),
+                        hint: "💡 Hint: You're doing arithmetic on 'None'. Check if the variable is None first.",
+                        fix: "Add: if x is not None: before the operation."
+                    },
+                    {
+                        type: "TypeError: String concatenation with int (x='5'+5)",
+                        check: (l) => /=\s*['"][^'"]*['"]\s*\+\s*\d|\=\s*\d+\s*\+\s*['"]/.test(l),
+                        hint: "💡 Hint: Mixing string and int with '+' causes TypeError.",
+                        fix: "Use int('5') + 5 or '5' + str(5)."
+                    }
+                ],
+
+                // ─────────────────── JAVASCRIPT ───────────────────
+                ".js": [
+                    {
+                        type: "SyntaxError: Typo in keyword 'function'",
+                        check: (l) => /\b(functon|funtion|funciton|functoin|fnction)\b/.test(l),
+                        hint: "💡 Hint: The keyword 'function' is misspelled.",
+                        fix: "Replace with: function"
+                    },
+                    {
+                        type: "SyntaxError: Missing closing parenthesis ')'",
+                        check: (l) => {
+                            const op = (l.match(/\(/g)||[]).length;
+                            const cl = (l.match(/\)/g)||[]).length;
+
+                            return op > cl && !/\)\s*\{/.test(l);
+                        },
+                        hint: "💡 Hint: There is an unclosed '(' on this line.",
+                        fix: "Add the missing ')' to close the expression."
+                    },
+                    {
+                        type: "SyntaxError: Missing closing brace '}'",
+                        check: (l) => {
+                            const op = (l.match(/\{/g)||[]).length;
+                            const cl = (l.match(/\}/g)||[]).length;
+                            return op > cl && !l.trim().startsWith('//');
+                        },
+                        hint: "💡 Hint: There's an unclosed '{' on this line.",
+                        fix: "Add the missing '}' to close the block."
+                    },
+                    {
+                        type: "SyntaxError: Assignment '=' instead of comparison '===' in if()",
+                        check: (l) => /\bif\s*\(\s*\w[\w.]*\s*=[^=><!]/.test(l),
+                        hint: "💡 Hint: Inside if(), '=' assigns a value. Use '===' to compare.",
+                        fix: "Change '=' to '===' for strict equality check."
+                    },
+                    {
+                        type: "SyntaxError: Missing semicolon",
+                        check: (l) => {
+                            const t = l.trim();
+                            return t.length > 3 &&
+                                !t.endsWith(';') && !t.endsWith('{') && !t.endsWith('}') &&
+                                !t.endsWith(',') && !t.startsWith('//') && !t.startsWith('/*') &&
+                                /^(let|const|var|return|console\.|throw|import|export)\s/.test(t);
+                        },
+                        hint: "💡 Hint: JavaScript statements should end with a semicolon ';'.",
+                        fix: "Add ';' at the end of this statement."
+                    },
+                    {
+                        type: "SyntaxError: Missing array element separators (commas)",
+                        check: (l) => /\[\s*\d+\s+\d+/.test(l),
+                        hint: "💡 Hint: Array elements must be separated by commas.",
+                        fix: "Add commas between elements: [1, 2, 3]"
+                    },
+                    {
+                        type: "SyntaxError: Invalid variable name (starts with digit)",
+                        check: (l) => /\b(let|const|var)\s+\d\w+/.test(l),
+                        hint: "💡 Hint: Variable names cannot start with a digit.",
+                        fix: "Rename: 'let 1x' → 'let x1'"
+                    },
+                    {
+                        type: "SyntaxError: Unclosed string literal",
+                        check: (l) => {
+                            const t = l.replace(/\\'/g,'').replace(/\\"/g,'');
+                            const sq = (t.match(/'/g)||[]).length;
+                            const dq = (t.match(/"/g)||[]).length;
+                            return (sq % 2 !== 0) || (dq % 2 !== 0);
+                        },
+                        hint: "💡 Hint: A string is not closed. Every opening quote needs a closing quote.",
+                        fix: "Add the missing closing quote ' or \" on this line."
+                    },
+                    {
+                        type: "RuntimeError: Division by zero",
+                        check: (l) => /\/\s*0(?!\.)/.test(l) && !/['"`]\s*\/\s*0/.test(l),
+                        hint: "💡 Hint: Division by zero returns Infinity or NaN in JavaScript.",
+                        fix: "Add a guard: if(divisor !== 0) { ... }"
+                    },
+                    {
+                        type: "LogicError: Wrong comparison operator (<=5 instead of <5)",
+                        check: (l) => /for\s*\(.*;\s*\w+\s*<=\s*\d+\s*;/.test(l),
+                        hint: "💡 Hint: Using '<=' in a for-loop will iterate one extra time — check if you meant '<'.",
+                        fix: "Change '<=' to '<' if you want to iterate exactly N times."
+                    },
+                    {
+                        type: "RuntimeError: Null/undefined access (.length on null)",
+                        check: (l) => /null\s*\.\w+|undefined\s*\.\w+/.test(l),
+                        hint: "💡 Hint: Accessing a property on null or undefined will throw a TypeError.",
+                        fix: "Add a guard: if(x !== null && x !== undefined) { ... }"
+                    },
+                    {
+                        type: "SyntaxError: 'console' used without '.log'",
+                        check: (l) => /\bconsole\s*\(\s*/.test(l) && !/console\.\w+/.test(l),
+                        hint: "💡 Hint: 'console' is an object, not a function. Use 'console.log()'.",
+                        fix: "Change 'console(...)' to 'console.log(...)'"
+                    },
+                    {
+                        type: "LogicError: Wrong return operation (a-b instead of a+b)",
+                        check: (l) => /return\s+\w+\s*-\s*\w+/.test(l) && /add|sum|plus/i.test(l) === false,
+                        hint: "💡 Hint: Check your arithmetic operator — is this subtraction intentional?",
+                        fix: "Verify: should this be 'return a + b' ?"
+                    }
+                ],
+
+                // ─────────────────── C++ ───────────────────
+                ".cpp": [
+                    {
+                        type: "SyntaxError: Missing semicolon ';'",
+                        check: (l) => {
+                            const t = l.trim();
+                            return t.length > 2 && !t.endsWith(';') && !t.endsWith('{') && !t.endsWith('}') &&
+                                !t.startsWith('//') && !t.startsWith('#') && !t.endsWith('\\') &&
+                                /^(int|float|double|char|string|bool|cout|cin|return|auto|long|unsigned)\b/.test(t);
+                        },
+                        hint: "💡 Hint: C++ statements must end with a semicolon ';'.",
+                        fix: "Add ';' at the end of this statement."
+                    },
+                    {
+                        type: "Error: 'void main()' — C++ requires 'int main()'",
+                        check: (l) => /^\s*void\s+main\s*\(/.test(l),
+                        hint: "💡 Hint: In standard C++, main() must return 'int', not 'void'.",
+                        fix: "Change 'void main()' to 'int main()'"
+                    },
+                    {
+                        type: "Error: Missing namespace — use 'std::' or add 'using namespace std;'",
+                        check: (l, idx, lines) => {
+                            if (!/\b(cout|cin|endl)\b/.test(l)) return false;
+                            if (/std::/.test(l)) return false;
+
+                            return !lines.slice(0, idx).some(ln => /using\s+namespace\s+std/.test(ln));
+                        },
+                        hint: "💡 Hint: 'cout' and 'cin' need the std namespace. Add 'using namespace std;' or use 'std::cout'.",
+                        fix: "Add at the top: using namespace std;"
+                    },
+                    {
+                        type: "SyntaxError: Missing '#include <iostream>'",
+                        check: (l, idx, lines) => {
+                            if (!/\b(cout|cin|endl)\b/.test(l)) return false;
+                            return !lines.some(ln => /#include\s*<iostream>/.test(ln));
+                        },
+                        hint: "💡 Hint: You're using cout/cin but haven't included <iostream>.",
+                        fix: "Add at the top: #include <iostream>"
+                    },
+                    {
+                        type: "Error: Wrong include syntax (use <iostream> not <iostream.h>)",
+                        check: (l) => /#include\s*<iostream\.h>/.test(l),
+                        hint: "💡 Hint: Modern C++ uses <iostream> without the .h extension.",
+                        fix: "Change '#include <iostream.h>' to '#include <iostream>'"
+                    },
+                    {
+                        type: "SyntaxError: for-loop parts must be separated by ';' not ','",
+                        check: (l) => /\bfor\s*\(\s*[^;]+,[^;]+,[^)]*\)/.test(l),
+                        hint: "💡 Hint: In C++ for-loops, separate the three parts with semicolons, not commas.",
+                        fix: "Use: for(int i=0; i<n; i++)"
+                    },
+                    {
+                        type: "Error: Missing pointer operator '&' when assigning address",
+                        check: (l) => /int\s*\*\s*\w+\s*=\s*(?!&|\*|new|null|0)\w+\s*;/.test(l),
+                        hint: "💡 Hint: To assign an address to a pointer, use the '&' operator.",
+                        fix: "Change 'int* p = x;' to 'int* p = &x;'"
+                    },
+                    {
+                        type: "Error: Wrong char literal — use single quotes not double quotes",
+                        check: (l) => /\bchar\s+\w+\s*=\s*"[^"]{1}"/.test(l),
+                        hint: "💡 Hint: char literals must use single quotes: char c = 'A'; not double quotes.",
+                        fix: "Change char c = \"A\" to char c = 'A'"
+                    },
+                    {
+                        type: "SyntaxError: Missing closing brace '}'",
+                        check: (l, idx, lines) => {
+                            // Only check the last non-empty line
+                            const nonEmpty = lines.filter(x => x.trim().length > 0);
+                            if (l !== nonEmpty[nonEmpty.length - 1]) return false;
+                            let open = 0, close = 0;
+                            lines.forEach(ln => { open += (ln.match(/\{/g)||[]).length; close += (ln.match(/\}/g)||[]).length; });
+                            return open > close;
+                        },
+                        hint: "💡 Hint: There are unclosed braces '{' in your code. Every '{' needs a matching '}'.",
+                        fix: "Add the missing '}' to close the block."
+                    }
+                ],
+
+                // ─────────────────── JAVA ───────────────────
+                ".java": [
+                    {
+                        type: "SyntaxError: Missing semicolon ';'",
+                        check: (l) => {
+                            const t = l.trim();
+                            return t.length > 2 && !t.endsWith(';') && !t.endsWith('{') && !t.endsWith('}') &&
+                                !t.startsWith('//') && !t.startsWith('@') &&
+                                /^(int|String|double|float|boolean|long|char|System\.|return|var|byte)\b/.test(t);
+                        },
+                        hint: "💡 Hint: Java statements must end with a semicolon ';'.",
+                        fix: "Add ';' at the end of this statement."
+                    },
+                    {
+                        type: "TypeError: 'string' (lowercase) should be 'String' (capital S)",
+                        check: (l) => /\bstring\s+\w+/.test(l) && !/\/\//.test(l.split('string')[0]),
+                        hint: "💡 Hint: In Java, String is a class — it must start with a capital 'S'.",
+                        fix: "Change 'string' to 'String'."
+                    },
+                    {
+                        type: "Error: 'system' should be 'System' (capital S)",
+                        check: (l) => /\bsystem\s*\./.test(l),
+                        hint: "💡 Hint: Java is case-sensitive. Use 'System.out.println' not 'system.out.println'.",
+                        fix: "Change 'system.' to 'System.'"
+                    },
+                    {
+                        type: "SyntaxError: for-loop parts must be separated by ';' not ','",
+                        check: (l) => /\bfor\s*\(\s*[^;]+,[^;]+,[^)]*\)/.test(l),
+                        hint: "💡 Hint: Java for-loops separate three parts with semicolons: for(init; condition; update).",
+                        fix: "Use: for(int i=0; i<n; i++)"
+                    },
+                    {
+                        type: "Error: Wrong array initialization syntax",
+                        check: (l) => /\bnew\s+\w+\s*\(\s*\d+\s*\)/.test(l) && /\[\s*\]/.test(l),
+                        hint: "💡 Hint: Java arrays are created with square brackets: new int[5], not new int(5).",
+                        fix: "Change 'new int(5)' to 'new int[5]'"
+                    },
+                    {
+                        type: "Error: Java main() must be 'public static void main(String[] args)'",
+                        check: (l) => /^\s*(public\s+)?(static\s+)?void\s+main\s*\(\s*\)/.test(l),
+                        hint: "💡 Hint: Java's entry point must be: public static void main(String[] args)",
+                        fix: "Change to: public static void main(String[] args)"
+                    },
+                    {
+                        type: "SyntaxError: Missing class body braces",
+                        check: (l) => /^\s*public\s+class\s+\w+\s*$/.test(l.trim()),
+                        hint: "💡 Hint: Class declaration needs opening '{' on the same or next line.",
+                        fix: "Add '{' after the class name: public class Main {"
+                    },
+                    {
+                        type: "Error: Use .equals() not '==' for String comparison",
+                        check: (l) => /String\w*\s*==\s*["']|["']\s*==\s*String\w*/.test(l) || (/==\s*"/.test(l) && !/\/\//.test(l)),
+                        hint: "💡 Hint: In Java, use .equals() to compare Strings — '==' compares references not values.",
+                        fix: "Change 'name == \"Admin\"' to 'name.equals(\"Admin\")'"
+                    },
+                    {
+                        type: "Error: Constructor should not have a return type 'void'",
+                        check: (l) => /\bpublic\s+void\s+\w+\s*\(\s*\)/.test(l) && /class\s+\w+/.test(l) === false,
+                        hint: "💡 Hint: Constructors must NOT have a return type. Remove 'void' from the constructor.",
+                        fix: "Change 'public void ClassName()' to 'public ClassName()'"
+                    }
+                ],
+
+                // ─────────────────── DART ───────────────────
+                ".dart": [
+                    {
+                        type: "SyntaxError: Missing semicolon ';'",
+                        check: (l) => {
+                            const t = l.trim();
+                            return t.length > 2 && !t.endsWith(';') && !t.endsWith('{') && !t.endsWith('}') &&
+                                !t.startsWith('//') &&
+                                /^(int|String|double|var|void|print|return|final|const|bool|dynamic)\b/.test(t);
+                        },
+                        hint: "💡 Hint: Dart statements must end with a semicolon ';'.",
+                        fix: "Add ';' at the end of this statement."
+                    },
+                    {
+                        type: "NameError: 'Print' should be lowercase 'print'",
+                        check: (l) => /\bPrint\s*\(/.test(l),
+                        hint: "💡 Hint: In Dart, print() is lowercase. 'Print' is not defined.",
+                        fix: "Change 'Print(...)' to 'print(...)'"
+                    },
+                    {
+                        type: "TypeError: Null safety — use 'int?' for nullable int",
+                        check: (l) => /\bint\s+\w+\s*=\s*null/.test(l),
+                        hint: "💡 Hint: With Dart null safety, non-nullable 'int' cannot be null. Use 'int?'.",
+                        fix: "Change 'int varName = null' to 'int? varName = null'"
+                    },
+                    {
+                        type: "Error: 'main' function name typo",
+                        check: (l) => /\bvoid\s+(mian|maim|mainn|mains)\s*\(/.test(l),
+                        hint: "💡 Hint: The entry point function is 'main', check the spelling.",
+                        fix: "Change the function name to: void main()"
+                    },
+                    {
+                        type: "SyntaxError: if() condition needs parentheses",
+                        check: (l) => /^\s*if\s+[^(]/.test(l) && !/^\s*if\s*\(/.test(l),
+                        hint: "💡 Hint: In Dart, the if condition must be in parentheses: if (condition) {}",
+                        fix: "Wrap condition in parentheses: if (condition) {}"
+                    },
+                    {
+                        type: "TypeError: Type mismatch — int can't hold a String",
+                        check: (l) => /\bint\s+\w+\s*=\s*['"]/.test(l),
+                        hint: "💡 Hint: You're assigning a String value to an int variable.",
+                        fix: "Remove quotes to assign a number: int age = 25;"
+                    },
+                    {
+                        type: "Error: 'const' value cannot be reassigned",
+                        check: (l, idx, lines) => {
+                            const t = l.trim();
+                            if (!/^\w+\s*=\s*/.test(t)) return false;
+                            const varName = t.match(/^(\w+)\s*=/);
+                            if (!varName) return false;
+                            return lines.slice(0, idx).some(ln => new RegExp(`\\bconst\\b.*\\b${varName[1]}\\b`).test(ln));
+                        },
+                        hint: "💡 Hint: You're trying to reassign a 'const' variable — that's not allowed.",
+                        fix: "Use 'var' or 'final' if the value needs to change."
+                    }
+                ],
+
+                // ─────────────────── C# ───────────────────
+                ".cs": [
+                    {
+                        type: "SyntaxError: Missing semicolon ';'",
+                        check: (l) => {
+                            const t = l.trim();
+                            return t.length > 2 && !t.endsWith(';') && !t.endsWith('{') && !t.endsWith('}') &&
+                                !t.startsWith('//') && !t.startsWith('[') &&
+                                /^(int|string|double|float|bool|long|char|Console\.|var|return)\b/.test(t);
+                        },
+                        hint: "💡 Hint: C# statements must end with a semicolon ';'.",
+                        fix: "Add ';' at the end of this statement."
+                    },
+                    {
+                        type: "Error: Use 'Console.WriteLine()' not 'console.log()'",
+                        check: (l) => /\bconsole\.log\s*\(/.test(l),
+                        hint: "💡 Hint: In C#, use 'Console.WriteLine()'. 'console.log' is JavaScript syntax.",
+                        fix: "Replace 'console.log(...)' with 'Console.WriteLine(...)'"
+                    },
+                    {
+                        type: "Error: Main() method must have capital 'M'",
+                        check: (l) => /\bstatic\s+void\s+main\s*\(/.test(l),
+                        hint: "💡 Hint: C# entry point is 'Main' (capital M), not 'main'.",
+                        fix: "Change 'static void main()' to 'static void Main()'"
+                    },
+                    {
+                        type: "Error: String literals use double quotes in C#",
+                        check: (l) => /\bstring\s+\w+\s*=\s*'[^']*'/.test(l),
+                        hint: "💡 Hint: In C#, string literals use double quotes \", not single quotes '.",
+                        fix: "Change string name = 'Ali' to string name = \"Ali\""
+                    },
+                    {
+                        type: "TypeError: 'bool' cannot be assigned an integer",
+                        check: (l) => /\bbool\s+\w+\s*=\s*[01]\s*;/.test(l),
+                        hint: "💡 Hint: In C#, bool values are 'true' or 'false', not 1 or 0.",
+                        fix: "Change bool x = 1 to bool x = true"
+                    },
+                    {
+                        type: "Error: 'Console.Readline()' should be 'Console.ReadLine()'",
+                        check: (l) => /Console\.Readline\s*\(/.test(l),
+                        hint: "💡 Hint: C# is case-sensitive. The method is 'ReadLine' not 'Readline'.",
+                        fix: "Change 'Console.Readline()' to 'Console.ReadLine()'"
+                    }
+                ],
+
+                "default": [
+                    {
+                        type: "Warning: Non-ASCII characters outside strings",
+                        check: (l) => /[^\x00-\x7F]/.test(l) && !/['"`]/.test(l),
+                        hint: "💡 Hint: Special/non-English characters outside strings may cause errors.",
+                        fix: "Remove or replace non-ASCII characters outside string literals."
+                    }
+                ]
+            };
+
+            // ===================================================================
+            // ENGINE FUNCTIONS
+            // ===================================================================
+
+            function buildAST(code) {
+                return code.split('\n').map((content, i) => ({ id: i, content, children: [], parent: i > 0 ? i - 1 : null }));
+            }
+
+            // BFS — 
+            function bfsFirstError(code, langExt) {
+                const lines = code.split('\n');
+                const rules = extendedCSPRules[langExt] || extendedCSPRules["default"];
+
+                if (window.currentChallenge) {
+                    const userNorm = code.replace(/\s+/g,' ').trim();
+                    const solNorm  = window.currentChallenge.fixed.replace(/\s+/g,' ').trim();
+                    if (userNorm === solNorm) return null;
+                }
+
+                // BFS
+                for (let i = 0; i < lines.length; i++) {
+                    const l = lines[i];
+                    for (const rule of rules) {
+                        if (rule.check(l, i, lines)) {
+                            return { ...rule, line: i + 1, lineContent: l.trim() };
+                        }
+                    }
+                }
+                return null;
+            }
+
+            // DFS — كل الأخطاء
+            function dfsAnalyze(nodes, langExt) {
+                const errors = [];
+                const lines  = nodes.map(n => n.content);
+                const rules  = extendedCSPRules[langExt] || extendedCSPRules["default"];
+                nodes.forEach((node, idx) => {
+                    rules.forEach(rule => {
+                        if (rule.check(node.content, idx, lines)) {
+                            errors.push({
+                                line: node.id + 1,
+                                lineContent: node.content.trim(),
+                                type: rule.type,
+                                hint: rule.hint,
+                                fix: rule.fix
+                            });
+                        }
+                    });
+                });
+                return errors;
+            }
+
+            // A* — أفضل fix
+            function aStarBestFix(errors, currentCode) {
+                if (!errors || errors.length === 0) return null;
+                const fixedLen = window.currentChallenge ? window.currentChallenge.fixed.length : currentCode.length;
+                const openSet  = errors.map((err, i) => ({ ...err, g: i, h: Math.abs(currentCode.length - fixedLen), f: 0 }));
+                openSet.forEach(n => n.f = n.g + n.h);
+                openSet.sort((a, b) => a.f - b.f);
+                return openSet[0];
+            }
+
+            function executeUserMode() {
+                const code = window.editor.getValue().trim();
+                if (!code) {
+                    renderOutput(`<span style="color:#f59e0b;">⚠️ The editor is empty. Type your code or load a challenge.</span>`);
+                    setStatus('No Code', '#f59e0b');
+                    return;
+                }
+                const ext = document.getElementById('langSelect').value;
+                const error = bfsFirstError(code, ext);
+
+                if (!error) {
+                    setStatus('✅ Success!', '#22c55e');
+                    renderOutput(`<span style="color:#22c55e;font-size:1.1em;">✅ Great job! No errors detected in your code.</span>\n\n<span style="color:#9ca3af;">Your code looks correct. Well done!</span>`);
+                    window.hintIndex = 0;
+                    return;
+                }
+
+                let outputHtml = `<span style="color:#f59e0b;">⚠️ Error found — Line ${error.line}</span>\n`;
+                if (error.lineContent) {
+                    outputHtml += `<span style="color:#6b7280; font-size:0.85em;">  ➜ "${error.lineContent}"</span>\n\n`;
+                }
+
+                const idx = window.hintIndex % 3;
+                if (idx === 0) {
+                    outputHtml += `<b style="color:#a78bfa;">📌 [Step 1/3 — Hint]</b>\n${error.hint}`;
+                    outputHtml += `\n\n<span style="color:#6b7280; font-size:0.8em;">Click "User Solves" again for more guidance...</span>`;
+                } else if (idx === 1) {
+                    outputHtml += `<b style="color:#60a5fa;">🔍 [Step 2/3 — Where to Look]</b>\n`;
+                    outputHtml += `Error type: <span style="color:#f87171;">${error.type}</span>\n`;
+                    outputHtml += `Check line ${error.line} carefully and compare with the expected syntax for this language.`;
+                    outputHtml += `\n\n<span style="color:#6b7280; font-size:0.8em;">Click "User Solves" one more time to see the fix...</span>`;
+                } else {
+                    outputHtml += `<b style="color:#34d399;"> [Step 3/3 — The Fix]</b>\n`;
+                    outputHtml += `<pre style="background:#0d1117; border:1px solid #30363d; padding:12px; border-radius:8px; color:#e6edf3; margin:8px 0; white-space:pre-wrap;">${escapeHtml(error.fix)}</pre>`;
+                    if (window.currentChallenge) {
+                        outputHtml += `\n<b style="color:#34d399;">✅ Expected Solution:</b>\n`;
+                        outputHtml += `<pre style="background:#0d1117; border:1px solid #238636; padding:12px; border-radius:8px; color:#7ee787; margin:4px 0; white-space:pre-wrap;">${escapeHtml(window.currentChallenge.fixed)}</pre>`;
+                    }
+                }
+
+                window.hintIndex++;
+                renderOutput(outputHtml);
+                setStatus(`Hint ${idx+1}/3 shown`, '#f59e0b');
+            }
+
+            function executeAIMode() {
+                const code = window.editor.getValue().trim();
+                if (!code) {
+                    renderOutput(`<span style="color:#f59e0b;">⚠️ The editor is empty. Type your code or load a challenge.</span>`);
+                    setStatus('No Code', '#f59e0b');
+                    return;
+                }
+                const ext = document.getElementById('langSelect').value;
+                const ast = buildAST(code);
+                setStatus('🤖 AI Analyzing...', '#a855f7');
+                renderOutput(`<span style="color:#a855f7;"> Scanning your code...</span>`);
+
+                setTimeout(() => {
+                    const allErrors = dfsAnalyze(ast, ext);
+                    const bestFix = aStarBestFix(allErrors, code);
+
+                    if (allErrors.length === 0) {
+                        let html = `<span style="color:#22c55e;font-size:1.1em;">✅ AI Analysis Complete: No errors detected!</span>\n\n`;
+                        html += `<span style="color:#9ca3af;">Your code passed all ${(extendedCSPRules[ext]||extendedCSPRules["default"]).length} rule checks successfully.</span>`;
+                        if (window.currentChallenge) {
+                            const userNorm = code.replace(/\s+/g, ' ').trim();
+                            const solNorm  = window.currentChallenge.fixed.replace(/\s+/g, ' ').trim();
+                            if (userNorm !== solNorm) {
+                                html += `\n\n<span style="color:#f59e0b;">⚠️ Note: Your solution differs from the expected answer.</span>`;
+                                html += `\n<b style="color:#34d399;">Expected Solution:</b>\n<pre style="background:#0d1117; border:1px solid #238636; padding:12px; border-radius:8px; color:#7ee787; white-space:pre-wrap;">${escapeHtml(window.currentChallenge.fixed)}</pre>`;
+                            } else {
+                                html += `\n\n<span style="color:#22c55e;">🎉 And it matches the expected solution perfectly!</span>`;
+                            }
+                        }
+                        renderOutput(html);
+                        setStatus('✅ AI: Code Clean', '#22c55e');
+                        return;
+                    }
+
+                    let html = `<span style="color:#a855f7;font-size:1.05em;">🤖 AI Analysis Report — ${allErrors.length} issue(s) found</span>\n`;
+                    html += `<span style="color:#6b7280; font-size:0.8em;">─────────────────────────────────</span>\n\n`;
+
+                    allErrors.forEach((err, i) => {
+                        html += `<span style="color:#f87171;">[${i+1}] Line ${err.line}: ${err.type}</span>\n`;
+                        if (err.lineContent) {
+                            html += `<span style="color:#6b7280; font-size:0.82em;">     ➜ "${escapeHtml(err.lineContent)}"</span>\n`;
+                        }
+                        html += `${err.hint}\n\n`;
+                    });
+
+                    if (bestFix) {
+                        html += `<span style="color:#6b7280; font-size:0.8em;">─────────────────────────────────</span>\n`;
+                        html += `<b style="color:#34d399;">🎯 AI Recommended Fix (A* — highest priority):</b>\n`;
+                        html += `<span style="color:#e5e7eb;">Line ${bestFix.line}: ${bestFix.type}</span>\n`;
+                        html += `<pre style="background:#0d1117; border:1px solid #30363d; padding:12px; border-radius:8px; color:#e6edf3; margin:6px 0; white-space:pre-wrap;">${escapeHtml(bestFix.fix)}</pre>`;
+                    }
+
+                    if (window.currentChallenge) {
+                        html += `\n<b style="color:#34d399;">✅ Full Correct Solution:</b>\n`;
+                        html += `<pre style="background:#0d1117; border:1px solid #238636; padding:12px; border-radius:8px; color:#7ee787; white-space:pre-wrap;">${escapeHtml(window.currentChallenge.fixed)}</pre>`;
+                    }
+
+                    renderOutput(html);
+                    setStatus(`🤖 AI: ${allErrors.length} issue(s) found`, '#ef4444');
+                }, 600);
+            }
+
+            // Helper: escape HTML
+            function escapeHtml(str) {
+                if (!str) return '';
+                return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            }
+
+            document.getElementById('btn-user-mode').addEventListener('click', () => {
+                window.currentMode = 'user';
+                document.getElementById('btn-user-mode').classList.add('active');
+                document.getElementById('btn-ai-mode').classList.remove('active');
+                executeUserMode();
+            });
+
+            document.getElementById('btn-ai-mode').addEventListener('click', () => {
+                window.currentMode = 'ai';
+                document.getElementById('btn-ai-mode').classList.add('active');
+                document.getElementById('btn-user-mode').classList.remove('active');
+                window.hintIndex = 0;
+                executeAIMode();
+            });
+        });
+
+    </script>
+</body>
+
+</html>

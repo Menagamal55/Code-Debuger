@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>CodeSee | Understand & Fix Errors Smarter</title>
+    <!-- Font Awesome 6 (free stable) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: modern developer-friendly -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at 20% 30%, #0a0c14, #03050b);
+            color: #eef2ff;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+        }
+
+        nav {
+            background: rgba(8, 12, 25, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 0.9rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        nav h1 a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+            background: linear-gradient(135deg, #ffffff, #8b9eff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            transition: 0.2s;
+        }
+
+        nav h1 a i {
+            background: none;
+            background-clip: unset;
+            -webkit-background-clip: unset;
+            color: #60a5fa;
+            font-size: 1.8rem;
+        }
+
+        .codebtn {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .codebtn button:not(.gradient-button) {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.4rem 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .codebtn button:not(.gradient-button) a {
+            text-decoration: none;
+            color: #cbd5f0;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: 0.3s;
+            letter-spacing: -0.2px;
+        }
+
+        .codebtn button:not(.gradient-button) {
+            position: relative;
+        }
+
+        .codebtn button:not(.gradient-button)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: #3b82f6;
+            transition: 0.4s ease;
+        }
+
+        .codebtn button:not(.gradient-button):hover::after {
+            width: 100%;
+        }
+
+        .codebtn button:not(.gradient-button):hover a {
+            color: white;
+        }
+
+        .gradient-button {
+            position: relative;
+            padding: 10px 26px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            border-radius: 60px;
+            overflow: hidden;
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-button:hover {
+            transform: scale(1.03);
+        }
+
+        .gradient-button:active {
+            transform: scale(0.97);
+        }
+
+        .gradient-button::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, #3b82f6, #8b5cf6, #06b6d4, #2563eb, #6366f1, #4f46e5, #3b82f6);
+            z-index: -2;
+            filter: blur(12px);
+            transform: rotate(0deg);
+            transition: transform 1.2s ease-in-out;
+        }
+
+        .gradient-button:hover::before {
+            transform: rotate(180deg);
+        }
+
+        .gradient-button::after {
+            content: "";
+            position: absolute;
+            inset: 3px;
+            background: #0b1120;
+            border-radius: 60px;
+            z-index: -1;
+            filter: blur(3px);
+        }
+
+        .gradient-text {
+            background: linear-gradient(120deg, #a5f3fc, #818cf8, #c084fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .gradient-button:hover .gradient-text {
+            animation: subtle-glow 1s infinite alternate;
+        }
+
+        @keyframes subtle-glow {
+            0% { filter: brightness(1); text-shadow: 0 0 2px rgba(59,130,246,0.3);}
+            100% { filter: brightness(1.1); text-shadow: 0 0 5px rgba(96,165,250,0.5);}
+        }
+
+        .gradient-button a, .codebtn button a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .home {
+            text-align: center;
+            padding: 5rem 2rem 6rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .home h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(145deg, #ffffff, #b4c6ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 1.2rem;
+        }
+
+        .home h1 span {
+            background: linear-gradient(135deg, #60a5fa, #c084fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .home p {
+            font-size: 1.2rem;
+            color: #b9c7e0;
+            max-width: 650px;
+            margin: 1.5rem auto 2.5rem auto;
+            line-height: 1.6;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(59,130,246,0.5);
+            border-radius: 60px;
+            padding: 10px 28px;
+            font-weight: 600;
+            transition: 0.2s;
+            backdrop-filter: blur(4px);
+        }
+        .btn-secondary a {
+            text-decoration: none;
+            color: #d9e6ff;
+        }
+        .btn-secondary:hover {
+            background: rgba(59,130,246,0.2);
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+
+        .feature-section {
+            padding: 4rem 1.5rem 6rem;
+            background: transparent;
+            position: relative;
+        }
+
+        .feature-container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .feature-header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+        .feature-header h2 {
+            font-size: 2.7rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #8b9eff, #3b82f6);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .feature-header p {
+            color: #8193b5;
+            margin-top: 0.7rem;
+            font-size: 1.1rem;
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .card {
+            background: rgba(18, 25, 45, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 32px;
+            width: 280px;
+            padding: 1.8rem 1.5rem;
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: #3b82f6;
+            background: rgba(24, 36, 65, 0.8);
+            box-shadow: 0 28px 35px -12px #0f172a;
+        }
+
+        .card h5 {
+            margin: 0 0 1.2rem;
+            font-size: 2rem;
+        }
+        .card h5 i {
+            font-size: 2.8rem;
+            background: linear-gradient(145deg, #60a5fa, #a78bfa);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .card h2 {
+            font-size: 1.55rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 0.8rem;
+            color: #f1f5ff;
+        }
+        .card p {
+            font-size: 0.9rem;
+            color: #b9ceff;
+            line-height: 1.55;
+        }
+
+        .footer-note {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(59,130,246,0.2);
+            margin-top: 2rem;
+            color: #6c7fa0;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 0.8rem 1.2rem;
+            }
+            .home h1 {
+                font-size: 2.2rem;
+            }
+            .home p {
+                font-size: 1rem;
+            }
+            .feature-header h2 {
+                font-size: 2rem;
+            }
+            .card {
+                width: 100%;
+                max-width: 320px;
+            }
+            .codebtn {
+                gap: 0.8rem;
+            }
+        }
+        @media (max-width: 550px) {
+            nav h1 a {
+                font-size: 1.3rem;
+            }
+            .gradient-button {
+                padding: 6px 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+         <nav>
+        <h1><a href="#home"><i class="fa-solid fa-magnifying-glass"></i> CodeSee</a></h1>
+        <div class="codebtn">
+            <button> <a href="Ai-codedebugger.html">Tools</a> </button>
+            <button> <a href="#features">Features</a> </button>
+            <button class="gradient-button">
+                <span class="gradient-text"><a href="Ai-codedebugger.html">Start Now</a></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="home" id="home">
+        <h1>Don't just read the error —<br><span>understand it</span></h1>
+        <p>CodeSee doesn't just find the bug — it teaches you how to think correctly and solve it yourself.<br>
+        Two modes: whether you want to learn or get the answer fast.</p>
+        <div class="btn-group">
+            <button class="gradient-button">
+                <span class="gradient-text"><a href="Ai-codedebugger.html">Try It Now</a></span>
+            </button>
+            <button class="btn-secondary">
+                <a href="#features">Learn More →</a>
+            </button>
+        </div>
+    </div>
+
+    <!-- FEATURE SECTION (integrated from first design, fully styled to blend) -->
+    <div class="feature-section" id="features">
+        <div class="feature-container">
+            <div class="feature-header">
+                <h2>Why CodeSee?</h2>
+                <p>AI-powered pair programming · Learn faster, debug smarter</p>
+            </div>
+            <div class="card-container">
+                <!-- 1. User Solves Mode -->
+                <div class="card">
+                    <h5><i class="fa-solid fa-brain"></i></h5>
+                    <h2>User Solves Mode</h2>
+                    <p>It won't give you the answer right away. Instead it gives you smart hints and guided questions that help you reach the solution yourself.</p>
+                </div>
+                <!-- 2. AI Solves Mode (bolt icon fix) -->
+                <div class="card">
+                    <h5><i class="fa-solid fa-bolt"></i></h5>
+                    <h2>AI Solves Mode</h2>
+                    <p>Need the fix fast? The AI analyzes your code, pinpoints the error, and gives you the solution with a clear explanation of why it was wrong.</p>
+                </div>
+                <!-- 3. Multi-language -->
+                <div class="card">
+                    <h5><i class="fa-solid fa-laptop-code"></i></h5>
+                    <h2>Multi-language</h2>
+                    <p>Supports Python, JavaScript, Java, C++, and more. Recognizes error types and handles them appropriately for each language.</p>
+                </div>
+                <!-- 4. Practice exercises -->
+                <div class="card">
+                    <h5><i class="fa-solid fa-graduation-cap"></i></h5>
+                    <h2>Practice exercises</h2>
+                    <p>After solving the error, it suggests similar exercises to practice so you truly understand the concept.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer-note">
+        <i class="fa-regular fa-keyboard"></i> CodeSee — debug with confidence · smart hints & instant AI mode
+    </div>
+
+    
+</body>
+
+</html>
