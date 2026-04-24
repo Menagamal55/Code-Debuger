@@ -139,12 +139,4 @@ cd Code-Debuger
 **Manal Abdelhameed**
 ---
 
-## ⭐ Support
 
-If you like this project:
-
-* ⭐ Star the repo
-* 🍴 Fork it
-* 💬 Share it
-
----
