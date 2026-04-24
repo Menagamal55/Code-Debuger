@@ -133,9 +133,7 @@ cd Code-Debuger
 ## 👩‍💻 Author
 
 **Menna Gamal**
-**ة
 **Manar Wael**
-
 **Manal Abdelhameed**
 ---
 
