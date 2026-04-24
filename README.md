@@ -12,7 +12,7 @@
   </a>
 </p>
 
-> 💡 Replace the link above with your demo video (Google Drive / YouTube)
+
 
 ---
 
@@ -133,7 +133,9 @@ cd Code-Debuger
 ## 👩‍💻 Author
 
 **Menna Gamal**
+
 **Manar Wael**
+
 **Manal Abdelhameed**
 ---
 
