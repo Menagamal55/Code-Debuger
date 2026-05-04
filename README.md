@@ -132,11 +132,11 @@ cd Code-Debuger
 
 ## 👩‍💻 Author
 
-**Menna Gamal**
+**Manal AbdElhameed**
 
 **Manar Wael**
 
-**Manal Abdelhameed**
+**Menna Gamal**
 ---
 
 
